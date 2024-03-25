@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Intelligent Code Reviewer</title>
+    <style>
+        body {
+            font-family: 'Consolas', sans-serif;
+            margin: 20px;
+            background-color: #f0f8ff; /* 배경색을 연한 하늘색으로 설정 */
+        }
+        #header {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #4B0082; /* 제목 색상을 진보라색으로 설정 */
+        }
+        #codeSection, #reviewSection, #variableNameSection {
+            margin-bottom: 20px;
+            border-radius: 10px; /* 섹션의 모서리를 둥글게 */
+            box-shadow: 0 0 10px rgba(0,0,0,0.1); /* 섹션에 그림자 효과 추가 */
+            background-color: #ffffff; /* 섹션 배경색을 흰색으로 */
+            padding: 20px; /* 섹션 안쪽 여백 추가 */
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            font-size: 16px;
+            margin-bottom: 10px;
+            tab-size: 4;
+            border-radius: 5px; /* 텍스트 영역의 모서리를 둥글게 */
+            border: 1px solid #ccc; /* 테두리 색상 설정 */
+            padding: 10px; /* 텍스트 영역 안쪽 여백 추가 */
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50; /* 버튼 배경색을 연두색으로 */
+            color: white; /* 버튼 글자 색상을 흰색으로 */
+            border: none;
+            border-radius: 5px; /* 버튼의 모서리를 둥글게 */
+            cursor: pointer; /* 마우스 오버시 커서 변경 */
+        }
+        button:hover {
+            background-color: #45a049; /* 마우스 오버시 버튼 배경색 변경 */
+        }
+        .list-section {
+            background-color: #fafafa; /* 목록 섹션의 배경색을 연한 회색으로 */
+            padding: 15px;
+            border-radius: 5px; /* 목록 섹션의 모서리를 둥글게 */
+        }
+        li {
+            margin: 10px 0;
+            list-style-type: none; /* 목록 스타일 제거 */
+            background-color: #e7e7e7; /* 목록 항목 배경색 설정 */
+            padding: 10px;
+            border-radius: 5px; /* 목록 항목 모서리를 둥글게 */
+        }
+    </style>
+</head>
+<body>
+    <div id="header">Intelligent Code Reviewer 🧠</div>
+    
+    <div id="codeSection">
+        <textarea id="codeInput"></textarea><br>
+        <button onclick="submitCode()">분석</button>
+    </div>
+
+    <div id="reviewSection" class="list-section"></div>
+    <div id="variableNameSection" class="list-section"></div>
+
+    <script>
+
+        document.getElementById('codeInput').addEventListener('keydown', function(e) {
+            // 탭 키를 눌렀을 경우의 동작
+            if (e.key === 'Tab') {
+                // 기본 동작을 방지 (탭 이동)
+                e.preventDefault();
+                // 탭 문자(보통 4개의 공백)를 삽입
+                var start = this.selectionStart;
+                var end = this.selectionEnd;
+
+                // 이 부분은 textarea에 탭 문자를 삽입
+                this.value = this.value.substring(0, start) + "\t" + this.value.substring(end);
+
+                // 커서를 탭 문자 뒤로 이동
+                this.selectionStart = this.selectionEnd = start + 1;
+            }
+        });
+
+        async function submitCode() {
+            const code = document.getElementById('codeInput').value;
+            const response = await fetch('/code', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ code: code }),
+            });
+            const result = await response.json();
+            displayReviews(result.reviews);
+            displayVariableNames(result.recommendedVarNames);
+        }
+
+        function displayReviews(reviews) {
+            const section = document.getElementById('reviewSection');
+            section.innerHTML = '<h3>코드 리뷰</h3>';
+            const list = document.createElement('ul');
+            reviews.forEach(review => {
+                const item = document.createElement('li');
+                item.textContent = review.content;
+                list.appendChild(item);
+            });
+            section.appendChild(list);
+        }
+
+        function displayVariableNames(varNames) {
+            const section = document.getElementById('variableNameSection');
+            section.innerHTML = '<h3>대체 변수명 추천</h3>';
+            const list = document.createElement('ul');
+            varNames.forEach(varName => {
+                const item = document.createElement('li');
+                item.textContent = `${varName.original} -> ${varName.new}`;
+                list.appendChild(item);
+            });
+            section.appendChild(list);
+        }
+    </script>
+</body>
+</html>
