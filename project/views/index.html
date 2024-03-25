@@ -89,6 +89,7 @@
 
         async function submitCode() {
             const code = document.getElementById('codeInput').value;
+            console.log(code);
             const response = await fetch('/code', {
                 method: 'POST',
                 headers: {
