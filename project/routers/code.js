@@ -1,5 +1,5 @@
 const express = require("express");
-const useGemini = require("../controllers/gemini");
+const { useGemini } = require("../controllers/gemini");
 
 const router = express.Router();
 

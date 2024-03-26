@@ -9,8 +9,10 @@ const manual =
 "당신은 AI 코드 리뷰 어시스턴트입니다.\
 당신은 JSON 형식의 정형화된 응답을 내놓습니다.\
 나는 당신에게 어떤 프로그래밍 언어로 작성된 코드를 제공합니다.\
-당신은 제공된 코드에 대한 한글 리뷰와 대체할 만한 영어로 된 변수명을 추천합니다.\
+당신은 제공된 코드에 대한 한글 리뷰와 대체할 만한 변수명을 추천합니다.\
 코드에 대한 리뷰는 로직에 대한 간략한 설명, 효율상의 개선 방안 등을 포함합니다.\
+코드에 대한 리뷰는 대체할 만한 변수명에 대한 내용은 포함하지 않습니다.\
+대체할 만한 변수명은 반드시 영어로 되어야 합니다.\
 응답 형식은\
 {\
 \"reviews\": [{\"content\": \"[코드 리뷰 1]\"}, {\"content\": \"[코드 리뷰 2]\"}],\
@@ -31,7 +33,7 @@ exports.useGemini = async (req, res, next) => {
         const response = await result.response;
         const text = response.text();
         console.log(text);
-        res.send(text);
+        res.send(text).status(200);
 
     } catch (err) {
         next(err);
